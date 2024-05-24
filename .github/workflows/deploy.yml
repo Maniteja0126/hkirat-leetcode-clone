@@ -1,0 +1,43 @@
+name: Deploy Firebase Functions
+
+on:
+  push:
+    branches:
+      - master  
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy to Firebase
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2  
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'  
+
+      - name: Install Dependencies
+        run: |
+          cd backend/functions
+          npm install  
+
+      - name: Lint the code
+        run: |
+          cd backend/functions
+          npm run lint  
+
+      - name: Build the project
+        run: |
+          cd backend/functions
+          npm run build  
+
+      - name: Deploy to Firebase
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }} 
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}  
+        run: |
+          cd backend
+          firebase deploy --only functions --project $FIREBASE_PROJECT_ID
